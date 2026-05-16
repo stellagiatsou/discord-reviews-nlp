@@ -6,11 +6,15 @@ library(SnowballC)
 library(textclean) # για την συνάρτηση replace_contraction
 library(textstem) # για lemmatization
 
+##### ----- Data collection ----- ####
+
 data <- read_excel("C:/Users/user/Discord.xlsx") 
 names(data) #ονόματα στηλών αρχείου excel
 
 # Επιλογή της στήλης content από το excel
 text <- data$content
+
+##### ----- Cleaning and preprocessing ----- ####
 
 # Δημιουργία cleaned_text στήλης
 cleaned_text <- text
@@ -91,6 +95,8 @@ cleaned_text <- cleaned_text[nchar(cleaned_text) > 0]
 # Aποτελέσματα
 head(cleaned_text)
 
+##### ----- For Exploratory Text Analysis ----- ####
+
 # Δημιουργία corpus
 corpus <- VCorpus(VectorSource(cleaned_text))
 
@@ -131,3 +137,4 @@ word_freq_df <- data.frame(
   freq = as.numeric(word_freq)
 )
 write.csv(word_freq_df, "word_frequency3.csv", row.names = FALSE)
+
