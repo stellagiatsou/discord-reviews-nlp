@@ -75,18 +75,6 @@ custom_stopwords <- setdiff(my_stopwords, keep_words)
 # Αφαίρεση stopwords
 cleaned_text <- removeWords(cleaned_text, custom_stopwords)
 
-# Stemming
-#cleaned_text <- sapply(cleaned_text, function(x) {
-  
-  # split sentence into words
-#  words <- unlist(strsplit(x, " ")) #tokenization
-  
-  # stemming
-#  words <- wordStem(words, language = "english")
-  
-  # join words again
-#  paste(words, collapse = " ")
-#})
 cleaned_text <- lemmatize_strings(cleaned_text)
 
 # Empty docs
