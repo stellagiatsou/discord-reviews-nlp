@@ -3,17 +3,17 @@ Built an end‑to‑end NLP pipeline in R to extract insights from Discord user 
 
 Topics
 
-1.Bugs/updates/system issues
+1. Bugs/updates/system issues
 
-2.Social/gaming interaction
+2. Social/gaming interaction
 
-3.Communication/support issues
+3. Communication/support issues
 
-4.Features/Nitro ecosystem
+4. Features/Nitro ecosystem
 
-5.Login/security
+5. Login/security
 
-6.Sentiment reactions
+6. Sentiment reactions
 
 Top terms per topic
 
