@@ -11,23 +11,23 @@ Topics
 
 Top terms per topic
 
-     Topic 1   Topic 2  Topic 3   Topic 4   Topic 5   Topic 6    
-     [1,] "app"     "app"    "app"     "discord" "account" "good"     
-     [2,] "message" "good"   "good"    "nitro"   "get"     "app"      
-     [3,] "send"    "friend" "can"     "use"     "can"     "nice"     
-     [4,] "fix"     "great"  "discord" "people"  "discord" "cool"     
-     [5,] "update"  "chat"   "mobile"  "app"     "try"     "megaphone"
-     [6,] "time"    "talk"   "orb"     "get"     "log"     "love"  
+     Topic 1    Topic 2   Topic 3     Topic 4    Topic 5     Topic 6    
+      "app"      "app"    "app"      "discord"   "account"   "good"     
+      "message"  "good"   "good"     "nitro"     "get"       "app"      
+      "send"     "friend" "can"      "use"       "can"       "nice"     
+      "fix"      "great"  "discord"  "people"    "discord"   "cool"     
+      "update"   "chat"   "mobile"   "app"       "try"       "megaphone"
+      "time"     "talk"   "orb"      "get"       "log"       "love"  
 
 Topic Distribution
 
      Topic 1   Topic 2  Topic 3   Topic 4   Topic 5   Topic 6    
-      0.007   0.966   0.007   0.007   0.007   0.007
-      0.022   0.674   0.239   0.022   0.022   0.022
-      0.927   0.005   0.005   0.005   0.053   0.005
-      0.629   0.004   0.004   0.355   0.004   0.004
-      0.002   0.397   0.002   0.496   0.002   0.101
-      0.015   0.924   0.015   0.015   0.015   0.015
+      0.007     0.966   0.007     0.007      0.007     0.007
+      0.022     0.674   0.239     0.022      0.022     0.022
+      0.927     0.005   0.005     0.005      0.053     0.005
+      0.629     0.004   0.004     0.355      0.004     0.004
+      0.002     0.397   0.002     0.496      0.002     0.101
+      0.015     0.924   0.015     0.015      0.015     0.015
 
 Dominant Topic
 
