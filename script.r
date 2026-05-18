@@ -1,14 +1,22 @@
 install.packages(c("readxl", "tm", "SnowballC", "stopwords", "textclean", "humspell", "textstem"))
-
+install.packages(c("quanteda", "stm", "tidyverse"))
+install.packages(c("syuzhet", "wordcloud", "RColorBrewer"))
 library(readxl)
 library(tm)
 library(SnowballC)
 library(textclean) # για την συνάρτηση replace_contraction
 library(textstem) # για lemmatization
 
-##### ----- Data collection ----- ####
+library(quanteda)
+library(stm)
+library(tidyverse)
+library(topicmodels)
+library(syuzhet)
 
-data <- read_excel("C:/Users/user/Discord.xlsx") 
+##### ----- Data collection ----- ####
+#data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Εργασία/discord_v3.csv") 
+
+data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Εργασία/Discord.xlsx") 
 names(data) #ονόματα στηλών αρχείου excel
 
 # Επιλογή της στήλης content από το excel
@@ -113,6 +121,102 @@ word_freq <- sort(word_freq, decreasing = TRUE)
 
 # Οι Top 20 λέξεις
 head(word_freq, 20)
+
+# bar plot 
+word_freq_df <- data.frame(
+  word = names(word_freq),
+  freq = as.numeric(word_freq)
+)
+top10_words <- head(word_freq, 10)
+
+# horizontal barplot
+barplot(
+  top10_words,
+  las = 2,
+  col = "steelblue",
+  main = "Top 10 Most Frequent Words",
+  ylab = "Frequency",
+  names.arg = names(top10_words)
+)
+
+# Topic modeling
+qcorp <- corpus(cleaned_text)
+
+tokens_bigram <- tokens(qcorp,
+                        what = "word",
+                        remove_punct = TRUE,
+                        remove_numbers = TRUE)
+
+tokens_bigram <- tokens_ngrams(tokens_bigram, n = 2)
+
+dfm_bigram <- dfm(tokens_bigram)
+
+# keep bigrams appearing at least 6 times
+dfm_bigram <- dfm_trim(dfm_bigram, min_termfreq = 10)
+
+stm_input <- convert(dfm_bigram, to = "stm")
+stm_model <- stm(
+  documents = stm_input$documents,
+  vocab = stm_input$vocab,
+  K = 6, #από 4 σε 6
+  max.em.its = 75,
+  init.type = "Spectral",
+  seed = 1234
+)
+
+labelTopics(stm_model, n = 10)
+plot(stm_model, type = "summary")
+
+
+mod_out <- topicCorr(stm_model)
+plot(mod_out)
+
+
+
+# Sentiment Analysis
+sent_scores <- get_sentiment(cleaned_text, method = "syuzhet")
+
+# summary
+summary(sent_scores)
+
+hist(
+  sent_scores,
+  breaks = 30,
+  main = "Sentiment Distribution",
+  xlab = "Sentiment Score",
+  col = "skyblue"
+)
+
+nrc <- get_nrc_sentiment(cleaned_text)
+
+emotion_totals <- colSums(nrc)
+
+barplot(
+  emotion_totals,
+  las = 2,
+  col = "tomato",
+  main = "NRC Emotion Distribution",
+  ylab = "Count"
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Εxport corpus
 corpus_text <- sapply(corpus, as.character)
