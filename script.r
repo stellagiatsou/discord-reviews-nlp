@@ -27,7 +27,7 @@ library(textclean)
 library(textstem)
 
 # Load dataset
-data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Discord_original.xlsx")
+data <- read_excel("path for Discord_original.xlsx")
 
 # Keep only text column
 text <- data$content
