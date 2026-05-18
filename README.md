@@ -2,12 +2,12 @@
 Built an end‑to‑end NLP pipeline in R to extract insights from Discord user reviews using topic modeling and sentiment analysis. Preprocessed text data, identified key discussion themes, and quantified user sentiment to support data‑driven understanding of community feedback.
 
 Topics
-1.Communication/support issues
-2.Login/security
-3.Sentiment reactions
-4.Social/gaming interaction
-5.Features/Nitro ecosystem
-6.Bugs/updates/system issues
+1.Bugs/updates/system issues
+2.Social/gaming interaction
+3.Communication/support issues
+4.Features/Nitro ecosystem
+5.Login/security
+6.Sentiment reactions
 
 Top terms per topic
 
