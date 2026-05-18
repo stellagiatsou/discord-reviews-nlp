@@ -90,7 +90,7 @@ corpus <- tm_map(corpus, removeWords, stopwords("english"))
 remove_words <- c(
     "chat", "message", "send", "server",
     "make", "try", "keep", "even", "now", "time",
-    "phone", "mobile", "account", "new"
+    "phone", "mobile", "account", "new",
     "app", "discord", "one", "get", "just",
     "will", "thing", "use", "also", "can",
     "ive", "see", "still", "well", "like",
