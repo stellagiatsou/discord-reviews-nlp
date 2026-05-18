@@ -1,184 +1,206 @@
-install.packages(c("readxl", "tm", "SnowballC", "stopwords", "textclean", "humspell", "textstem"))
-install.packages(c("quanteda", "stm", "tidyverse"))
-install.packages(c("syuzhet", "wordcloud", "RColorBrewer"))
-library(readxl)
-library(tm)
-library(SnowballC)
-library(textclean) # για την συνάρτηση replace_contraction
-library(textstem) # για lemmatization
+# Install required packages
+install.packages(c(
+  "topicmodels",
+  "topicdoc",
+  "tidytext",
+  "dplyr",
+  "tm",
+  "wordcloud",
+  "syuzhet",
+  "RColorBrewer",
+  "readxl",
+  "textclean",
+  "textstem"
+))
 
-library(quanteda)
-library(stm)
-library(tidyverse)
+# Libraries
 library(topicmodels)
+library(topicdoc)
+library(tidytext)
+library(dplyr)
+library(tm)
+library(wordcloud)
 library(syuzhet)
+library(RColorBrewer)
+library(readxl)
+library(textclean)
+library(textstem)
 
-##### ----- Data collection ----- ####
-#data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Εργασία/discord_v3.csv") 
+# Load dataset
+data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Discord_original.xlsx")
 
-data <- read_excel("C:/Users/stella/OneDrive/Έγγραφα/MSc/DA/Εργασία/Discord.xlsx") 
-names(data) #ονόματα στηλών αρχείου excel
-
-# Επιλογή της στήλης content από το excel
+# Keep only text column
 text <- data$content
 
-##### ----- Cleaning and preprocessing ----- ####
+# PREPROCESSING 
+# -------------
 
-# Δημιουργία cleaned_text στήλης
-cleaned_text <- text
+# Remove NA values
+text <- na.omit(text)
 
-# Γραμμές που δεν είναι στα αγγλικά
-rows_to_remove <- c(23, 153, 238, 260, 359, 445, 508, 521, 546) 
-# Αφαίρεση των γραμμών
-cleaned_text <- cleaned_text[-rows_to_remove]
+# Create corpus
+corpus <- VCorpus(VectorSource(text))
 
-# to lowercase
-cleaned_text <- tolower(cleaned_text)
+# Lowercase
+corpus <- tm_map(corpus, content_transformer(tolower))
 
-# Χειροκίνητη διόρθωση των πιο συχνών λαθών που επηρεάζουν το συναίσθημα
-# Σημείωση: Το \\b εξασφαλίζει ότι θα αλλάξει η λέξη "dnt" και όχι αν η ακολουθία "dnt" αν βρίσκεται μέσα σε άλλη λέξη
-cleaned_text <- gsub("\\bdnt\\b|\\bdont\\b", "do not", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bcant\\b", "cannot", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bgodd\\b|\\bgud\\b", "good", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bwont\\b", "will not", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bshnt\\b", "shall not", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bpls\\b", "please", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bNSFW\\b", "not safe for work", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bamaz\\b", "amazing", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bXD\\b", "laugh", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\blol\\b", "laugh out loud", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bstupi\\b", "stupid", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bpeak shii\\b", "the best", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bfrs\\b", "for real, still", cleaned_text, ignore.case = TRUE)
-cleaned_text <- gsub("\\bhaven\\'t\\b", "have not", cleaned_text, ignore.case = TRUE)
+# Replace contractions
+corpus <- tm_map(corpus, content_transformer(replace_contraction))
 
-# Tα emoji τα κρατάω για το sentiment analysis και τα μετατρέπω σε λέξεις
-cleaned_text <- replace_emoji(cleaned_text)
-# Επειδή η μετατροπή του emoji σε text αφήνει hex κώδικα  <ef><b8><8f><e2><80><8d> 
-# Αφαίρεση οτιδήποτε μέσα σε < > 
-cleaned_text <- gsub("<[^>]+>", " ", cleaned_text)
+# Custom slang corrections
+replace_custom <- content_transformer(function(x) {
 
-# Μετατροπή του "don't" σε "do not" και τοu "it's" σε "it is"
-cleaned_text <- replace_contraction(cleaned_text)
+  x <- gsub("\\bdnt\\b|\\bdont\\b", "do not", x, ignore.case = TRUE)
+  x <- gsub("\\bcant\\b", "cannot", x, ignore.case = TRUE)
+  x <- gsub("\\bgodd\\b|\\bgud\\b", "good", x, ignore.case = TRUE)
+  x <- gsub("\\bwont\\b", "will not", x, ignore.case = TRUE)
+  x <- gsub("\\bshnt\\b", "shall not", x, ignore.case = TRUE)
+  x <- gsub("\\bpls\\b", "please", x, ignore.case = TRUE)
+  x <- gsub("\\bnsfw\\b", "not safe for work", x, ignore.case = TRUE)
+  x <- gsub("\\bamaz\\b", "amazing", x, ignore.case = TRUE)
+  x <- gsub("\\bxd\\b", "laugh", x, ignore.case = TRUE)
+  x <- gsub("\\blol\\b", "laugh out loud", x, ignore.case = TRUE)
+  x <- gsub("\\bstupi\\b", "stupid", x, ignore.case = TRUE)
+  x <- gsub("\\bpeak shii\\b", "the best", x, ignore.case = TRUE)
+  x <- gsub("\\bfrs\\b", "for real still", x, ignore.case = TRUE)
 
-# Αφαίρεση URLs
-cleaned_text <- gsub("http\\S+|www\\S+", "", cleaned_text)
+  return(x)
+})
 
-# Αφαίρεση mentions
-cleaned_text <- gsub("<@!?[0-9]+>", " ", cleaned_text)   # <@12345> or <@!12345>
-cleaned_text <- gsub("@[A-Za-z0-9_]+", " ", cleaned_text)
+corpus <- tm_map(corpus, replace_custom)
 
-# Αφαίρεση σημείων στίξης
-cleaned_text <- gsub("[[:punct:]]", " ", cleaned_text)
+# Replace emojis with words
+corpus <- tm_map(corpus, content_transformer(replace_emoji))
 
-# Αφαίρεση αριθμών
-cleaned_text <- gsub("[0-9]", " ", cleaned_text)
+# Remove HTML tags from replacing the emojis with words
+corpus <- tm_map(corpus,
+                 content_transformer(function(x)
+                   gsub("<[^>]+>", " ", x)))
 
-# Αφαίρεση εξτρά spaces
-cleaned_text <- stripWhitespace(cleaned_text) # προκύπτουν από γραμμές 42, 45, 51, 54 
+# Remove punctuation
+corpus <- tm_map(corpus, removePunctuation)
 
-my_stopwords <- stopwords("english")
-keep_words <- c("not", "too", "very", "no", "more", "most", "but", "against", "however", "only", "up", "down", "off", "so",  "do", "would", "should", "could", "ought") # Θα γίνει ανάλυση με μέθοδο Bigrams δηλαδή ανά ζευγάρια λέξεων οπότε it's okay να μην αφαιρέσω το do 
-custom_stopwords <- setdiff(my_stopwords, keep_words)
-# Αφαίρεση stopwords
-cleaned_text <- removeWords(cleaned_text, custom_stopwords)
+# Remove numbers
+corpus <- tm_map(corpus, removeNumbers)
 
-cleaned_text <- lemmatize_strings(cleaned_text)
+# Remove stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
 
-# Empty docs
-cleaned_text <- cleaned_text[nchar(cleaned_text) > 0]
-
-# Aποτελέσματα
-head(cleaned_text)
-
-##### ----- For Exploratory Text Analysis ----- ####
-
-# Δημιουργία corpus
-corpus <- VCorpus(VectorSource(cleaned_text))
-
-# Δημιουργία term matrix
-# dtm <- DocumentTermMatrix(corpus)
-
-# Δημιουργία TF-IDF MATRIX
-dtm <- DocumentTermMatrix(corpus, control = list(weighting = function(x) weightTfIdf(x, normalize = TRUE)))
-
-# Κρατάω λέξεις που εμφανίζονται τουλάχιστον σε 3-4 κριτικές
-dtm_clean <- removeSparseTerms(dtm, 0.993) 
-
-# View matrix
-inspect(dtm_clean)
-
-# Οι πιο σημαντικοί όροι
-m <- as.matrix(dtm_clean)
-term_scores <- colSums(m)
-sort(term_scores, decreasing = TRUE)[1:20]
-
-# Συχνότητα λέξεων
-word_freq <- colSums(as.matrix(dtm_clean))
-
-# Sort descending
-word_freq <- sort(word_freq, decreasing = TRUE)
-
-# Οι Top 20 λέξεις
-head(word_freq, 20)
-
-# bar plot 
-word_freq_df <- data.frame(
-  word = names(word_freq),
-  freq = as.numeric(word_freq)
-)
-top10_words <- head(word_freq, 10)
-
-# horizontal barplot
-barplot(
-  top10_words,
-  las = 2,
-  col = "steelblue",
-  main = "Top 10 Most Frequent Words",
-  ylab = "Frequency",
-  names.arg = names(top10_words)
+# Custom remove words
+remove_words <- c(
+    "chat", "message", "send", "server",
+    "make", "try", "keep", "even", "now", "time",
+    "phone", "mobile", "account", "new"
+    "app", "discord", "one", "get", "just",
+    "will", "thing", "use", "also", "can",
+    "ive", "see", "still", "well", "like",
+    "good", "great", "first", "product",
+    "price", "year", "want", "start",
+    "dont", "best", "without"
 )
 
-# Topic modeling
-qcorp <- corpus(cleaned_text)
+corpus <- tm_map(corpus, removeWords, remove_words)
 
-tokens_bigram <- tokens(qcorp,
-                        what = "word",
-                        remove_punct = TRUE,
-                        remove_numbers = TRUE)
+# Lemmatization
+corpus <- tm_map(corpus,
+                 content_transformer(lemmatize_strings))
 
-tokens_bigram <- tokens_ngrams(tokens_bigram, n = 2)
+# Remove extra whitespace
+corpus <- tm_map(corpus, stripWhitespace)
 
-dfm_bigram <- dfm(tokens_bigram)
+# Create Document-Term Matrix
+dtm <- DocumentTermMatrix(corpus)
 
-# keep bigrams appearing at least 6 times
-dfm_bigram <- dfm_trim(dfm_bigram, min_termfreq = 10)
+# Remove empty documents
+raw_count <- rowSums(as.matrix(dtm))
+dtm <- dtm[raw_count > 0, ]
 
-stm_input <- convert(dfm_bigram, to = "stm")
-stm_model <- stm(
-  documents = stm_input$documents,
-  vocab = stm_input$vocab,
-  K = 6, #από 4 σε 6
-  max.em.its = 75,
-  init.type = "Spectral",
-  seed = 1234
+# Inspect matrix
+inspect(dtm)
+
+# TOPIC MODELING 
+# -------------
+
+# LDA (Gibbs sampling)
+
+set.seed(42)
+
+k <- 6
+
+lda_model <- LDA(
+  dtm,
+  k = k,
+  method = "Gibbs",
+  control = list(
+    iter = 1000,
+    seed = 42,
+    alpha = 0.1,
+    delta = 0.1
+  )
 )
 
-labelTopics(stm_model, n = 10)
-plot(stm_model, type = "summary")
+
+# Top terms per topic
+
+terms(lda_model, 6)
 
 
-mod_out <- topicCorr(stm_model)
-plot(mod_out)
+# Wordcloud per topic
+
+topic_terms <- posterior(lda_model)$terms
+
+par(mfrow = c(2, 3))  # 6 topics layout
+
+for (i in 1:k) {
+
+  topic_probs <- topic_terms[i, ]
+
+  top_words <- sort(topic_probs, decreasing = TRUE)[1:50]
+
+  wordcloud(
+    words = names(top_words),
+    freq = top_words,
+    scale = c(3, 0.5),
+    random.order = FALSE,
+    colors = brewer.pal(8, "Dark2"),
+    rot.per = 0.3
+  )
+
+  title(paste("Topic", i))
+}
+
+# Document-topic distribution
+
+doc_topics <- posterior(lda_model)$topics
+doc_topics <- as.data.frame(doc_topics)
+
+colnames(doc_topics) <- paste0("Topic_", 1:k)
+
+doc_topics <- round(doc_topics, 3)
+
+head(doc_topics)
+
+
+# Dominant topic
+
+doc_topics$dominant_topic <- apply(doc_topics, 1, which.max)
+
+table(doc_topics$dominant_topic)
 
 
 
-# Sentiment Analysis
+# SENTIMENT ANALYSIS 
+# ------------------
+
+# Convert corpus -> character vector
+cleaned_text <- sapply(corpus, as.character)
+
 sent_scores <- get_sentiment(cleaned_text, method = "syuzhet")
 
-# summary
 summary(sent_scores)
 
+
+# Sentiment Deistribution
 hist(
   sent_scores,
   breaks = 30,
@@ -187,6 +209,17 @@ hist(
   col = "skyblue"
 )
 
+
+# Polarity bar plot
+sent_labels <- ifelse(sent_scores > 0, "Positive",
+                      ifelse(sent_scores < 0, "Negative", "Neutral"))
+
+barplot(table(sent_labels),
+        col = c("red","gray","green"),
+        main = "Sentiment Distribution")
+
+
+# NRC emotions
 nrc <- get_nrc_sentiment(cleaned_text)
 
 emotion_totals <- colSums(nrc)
@@ -198,35 +231,3 @@ barplot(
   main = "NRC Emotion Distribution",
   ylab = "Count"
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Εxport corpus
-corpus_text <- sapply(corpus, as.character)
-write.csv(corpus_text, "corpus_export3.csv", row.names = FALSE)
-
-# Εxport word frequency
-word_freq <- sort(colSums(as.matrix(dtm_clean)), decreasing = TRUE)
-word_freq_df <- data.frame(
-  word = names(word_freq),
-  freq = as.numeric(word_freq)
-)
-write.csv(word_freq_df, "word_frequency3.csv", row.names = FALSE)
-
