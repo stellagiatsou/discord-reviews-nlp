@@ -10,6 +10,7 @@ Topics
 6.Bugs/updates/system issues
 
 Top terms per topic
+
      Topic 1   Topic 2  Topic 3   Topic 4   Topic 5   Topic 6    
 [1,] "app"     "app"    "app"     "discord" "account" "good"     
 [2,] "message" "good"   "good"    "nitro"   "get"     "app"      
@@ -19,6 +20,7 @@ Top terms per topic
 [6,] "time"    "talk"   "orb"     "get"     "log"     "love"  
 
 Topic Distribution
+
   Topic_1 Topic_2 Topic_3 Topic_4 Topic_5 Topic_6
 1   0.007   0.966   0.007   0.007   0.007   0.007
 2   0.022   0.674   0.239   0.022   0.022   0.022
