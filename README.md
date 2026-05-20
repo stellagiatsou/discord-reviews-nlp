@@ -19,31 +19,22 @@ Topics
 
 Top terms per topic
 
-     Topic 1    Topic 2   Topic 3     Topic 4    Topic 5     Topic 6    
-      "app"      "app"    "app"      "discord"   "account"   "good"     
-      "message"  "good"   "good"     "nitro"     "get"       "app"      
-      "send"     "friend" "can"      "use"       "can"       "nice"     
-      "fix"      "great"  "discord"  "people"    "discord"   "cool"     
-      "update"   "chat"   "mobile"   "app"       "try"       "megaphone"
-      "time"     "talk"   "orb"      "get"       "log"       "love"  
+     Topic 1    Topic 2     Topic 3      Topic 4      Topic 5    Topic 6    
+      "face"   "nitro"      "heart"     "update"     "friend"    "log"     
+      "quest"  "bad"        "red"       "fix"        "game"      "email"   
+      "orb"    "give"       "star"      "work"       "love"      "password"
+      "thumb"  "people"     "nice"      "bug"        "talk"      "try"     
+      "smile"  "datum"      "rate"      "issue"      "people"    "say"     
+      "please" "checkpoint" "cool"      "message"    "play"      "please" 
 
-Topic Distribution
-
-     Topic 1   Topic 2  Topic 3   Topic 4   Topic 5   Topic 6    
-      0.007     0.966   0.007     0.007      0.007     0.007
-      0.022     0.674   0.239     0.022      0.022     0.022
-      0.927     0.005   0.005     0.005      0.053     0.005
-      0.629     0.004   0.004     0.355      0.004     0.004
-      0.002     0.397   0.002     0.496      0.002     0.101
-      0.015     0.924   0.015     0.015      0.015     0.015
 
 Dominant Topic
 
      1    2     3    4    5    6    
-     914 1114  629  386  727  696 
+     386 393   220  633  612  496
 
 Sentiment Scores
 
        Min.    1st Qu. Median   Mean   3rd Qu.  Max. 
-     -5.7500  -0.1000  0.5000  0.3923  0.7500  9.3000 
+     -5.5000  -0.2500  0.0000  0.1973  0.7500  9.2500 
 
