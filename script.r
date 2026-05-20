@@ -25,10 +25,11 @@ library(RColorBrewer)
 library(readxl)
 library(textclean)
 library(textstem)
+library(ggplot2)
 
 # Load dataset
-data <- read_excel("path for Discord_original.xlsx")
-
+#data <- read_excel("path for Discord_original.xlsx")
+data <- read.csv("C:/Users/stella/Documents/MSc/DA/Εργασία/discord_v3.csv", header = TRUE, stringsAsFactors = FALSE)
 # Keep only text column
 text <- data$content
 
@@ -197,37 +198,129 @@ cleaned_text <- sapply(corpus, as.character)
 
 sent_scores <- get_sentiment(cleaned_text, method = "syuzhet")
 
-summary(sent_scores)
+sent_scores <- sent_scores[1:nrow(doc_topics)]
+doc_topics$sent_score <- sent_scores
 
-
-# Sentiment Deistribution
-hist(
-  sent_scores,
-  breaks = 30,
-  main = "Sentiment Distribution",
-  xlab = "Sentiment Score",
-  col = "skyblue"
+doc_topics$polarity <- ifelse(
+  doc_topics$sent_score > 0, "Positive",
+  ifelse(doc_topics$sent_score < 0, "Negative", "Neutral")
 )
 
+topic_names <- c(
+  "Communication/support issues",
+  "Features/Nitro ecosystem",
+  "Sentiment reactions/emojis",
+  "Bugs/updates/system issues",
+  "Social/gaming interaction",
+  "Login/security"
+)
+
+# Histogram per topic
+par(mfrow = c(2, 3))
+
+for (t in 1:k) {
+
+  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+
+  if (nrow(topic_df) == 0) next
+
+  hist(
+    topic_df$sent_score,
+    breaks = 30,
+    main = topic_names[t],
+    xlab = "Sentiment Score",
+    col = "skyblue"
+  )
+}
+
+# Polarity per topic
+for (t in 1:k) {
+
+  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+
+  if (nrow(topic_df) == 0) next
+
+  df_plot <- as.data.frame(table(topic_df$polarity))
+  colnames(df_plot) <- c("polarity", "count")
+
+  print(
+    ggplot(df_plot, aes(x = polarity, y = count, fill = polarity)) +
+      geom_bar(stat = "identity") +
+      theme_minimal() +
+      labs(title = topic_names[t])
+  )
+}
+
+# NRC sentiment per topic
+
+nrc_sentiment <- get_nrc_sentiment(cleaned_text)
+
+nrc_sentiment <- nrc_sentiment[1:nrow(doc_topics), ]
+
+doc_topics <- cbind(doc_topics, nrc_sentiment)
+
+emotion_cols <- c(
+  "anger","anticipation","disgust","fear",
+  "joy","sadness","surprise","trust"
+)
+
+for (t in 1:k) {
+
+  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+
+  if (nrow(topic_df) == 0) next
+
+  emotion_totals <- colMeans(topic_df[, emotion_cols])
+
+  df_plot <- data.frame(
+    emotion = names(emotion_totals),
+    score = as.numeric(emotion_totals)
+  )
+
+  print(
+    ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
+      geom_bar(stat = "identity") +
+      theme_minimal() +
+      labs(title = topic_names[t])
+  )
+}
 
 # Polarity bar plot
 sent_labels <- ifelse(sent_scores > 0, "Positive",
                       ifelse(sent_scores < 0, "Negative", "Neutral"))
 
-barplot(table(sent_labels),
-        col = c("red","gray","green"),
-        main = "Sentiment Distribution")
+#barplot(table(sent_labels),
+#        col = c("red","gray","green"),
+#        main = "Sentiment Distribution")
+df_plot <- as.data.frame(table(sent_labels))
+colnames(df_plot) <- c("polarity", "count")
 
+print(
+  ggplot(df_plot, aes(x = polarity, y = count, fill = polarity)) +
+    geom_bar(stat = "identity") +
+    theme_minimal() +
+    labs(title = "Sentiment Distribution")
+)
 
 # NRC emotions
 nrc <- get_nrc_sentiment(cleaned_text)
 
 emotion_totals <- colSums(nrc)
 
-barplot(
-  emotion_totals,
-  las = 2,
-  col = "tomato",
-  main = "NRC Emotion Distribution",
-  ylab = "Count"
+#barplot(
+#  emotion_totals,
+#  las = 2,
+#  col = "tomato",
+#  main = "NRC Emotion Distribution",
+#  ylab = "Count"
+#)
+df_plot <- data.frame(
+  emotion = names(emotion_totals),
+  score = as.numeric(emotion_totals)
+)
+print(
+  ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
+    geom_bar(stat = "identity") +
+    theme_minimal() +
+    labs(title = paste("NRC Emotion Distribution"))
 )
