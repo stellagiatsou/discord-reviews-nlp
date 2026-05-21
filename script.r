@@ -10,7 +10,8 @@ install.packages(c(
   "RColorBrewer",
   "readxl",
   "textclean",
-  "textstem"
+  "textstem",
+  "Rmisc"
 ))
 
 # Libraries
@@ -20,16 +21,17 @@ library(tidytext)
 library(dplyr)
 library(tm)
 library(wordcloud)
-library(syuzhet)
+library(syuzhet) #for sentiment analysis
 library(RColorBrewer)
 library(readxl)
 library(textclean)
 library(textstem)
 library(ggplot2)
+library(Rmisc) # for multiplot
 
 # Load dataset
-#data <- read_excel("path for Discord_original.xlsx")
-data <- read.csv("C:/Users/stella/Documents/MSc/DA/Εργασία/discord_v3.csv", header = TRUE, stringsAsFactors = FALSE)
+data <- read.csv("path for Discord_original.xlsx", header = TRUE, stringsAsFactors = FALSE)
+
 # Keep only text column
 text <- data$content
 
@@ -122,11 +124,11 @@ inspect(dtm)
 # TOPIC MODELING 
 # -------------
 
-# LDA (Gibbs sampling)
-
+# LDA - Gibbs sampling
+# Linear Discriminant Analysis (LDA) is a well-established machine learning technique and classification method for predicting categories
 set.seed(42)
 
-k <- 6
+k <- 6 # according to coherance score
 
 lda_model <- LDA(
   dtm,
@@ -140,14 +142,10 @@ lda_model <- LDA(
   )
 )
 
-
 # Top terms per topic
-
-terms(lda_model, 6)
-
+terms(lda_model, 10)
 
 # Wordcloud per topic
-
 topic_terms <- posterior(lda_model)$terms
 
 par(mfrow = c(2, 3))  # 6 topics layout
@@ -181,13 +179,11 @@ doc_topics <- round(doc_topics, 3)
 
 head(doc_topics)
 
-
 # Dominant topic
 
 doc_topics$dominant_topic <- apply(doc_topics, 1, which.max)
 
 table(doc_topics$dominant_topic)
-
 
 
 # SENTIMENT ANALYSIS 
@@ -218,41 +214,41 @@ topic_names <- c(
 # Histogram per topic
 par(mfrow = c(2, 3))
 
-for (t in 1:k) {
-
-  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+for (i in 1:k) {
+ 
+  topic_df <- doc_topics[doc_topics$dominant_topic == i, ]
 
   if (nrow(topic_df) == 0) next
 
   hist(
     topic_df$sent_score,
     breaks = 30,
-    main = topic_names[t],
+    main = topic_names[i],
     xlab = "Sentiment Score",
     col = "skyblue"
-  )
+    )
 }
 
 # Polarity per topic
-for (t in 1:k) {
+plot_lst <- vector("list", length = k) # an empty list
+for ( i in 1:k){
+  plot_lst[[i]] <- local({
+    i <- i 
+    topic_df <- doc_topics[doc_topics$dominant_topic == i, ]
 
-  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+    if (nrow(topic_df) == 0) next
 
-  if (nrow(topic_df) == 0) next
-
-  df_plot <- as.data.frame(table(topic_df$polarity))
-  colnames(df_plot) <- c("polarity", "count")
-
-  print(
-    ggplot(df_plot, aes(x = polarity, y = count, fill = polarity)) +
+    df_plot <- as.data.frame(table(topic_df$polarity))
+    colnames(df_plot) <- c("polarity", "count")
+      plot_lst[[i]] <- ggplot(df_plot, aes(x = polarity, y = count, fill = polarity)) +
       geom_bar(stat = "identity") +
       theme_minimal() +
-      labs(title = topic_names[t])
-  )
+      labs(title = topic_names[i]) + ggtitle(topic_names[i])
+  })
 }
+multiplot(plotlist = plot_lst, cols = 2)
 
 # NRC sentiment per topic
-
 nrc_sentiment <- get_nrc_sentiment(cleaned_text)
 
 nrc_sentiment <- nrc_sentiment[1:nrow(doc_topics), ]
@@ -263,27 +259,30 @@ emotion_cols <- c(
   "anger","anticipation","disgust","fear",
   "joy","sadness","surprise","trust"
 )
+plot_lst <- vector("list", length = k) # an empty list
+for (i in 1:i) {
+  plot_lst[[i]] <- local({
+    i <- i 
+    topic_df <- doc_topics[doc_topics$dominant_topic == i, ]
 
-for (t in 1:k) {
+    if (nrow(topic_df) == 0) next
 
-  topic_df <- doc_topics[doc_topics$dominant_topic == t, ]
+    emotion_totals <- colMeans(topic_df[, emotion_cols])
 
-  if (nrow(topic_df) == 0) next
+    df_plot <- data.frame(
+      emotion = names(emotion_totals),
+      score = as.numeric(emotion_totals)
+    )
 
-  emotion_totals <- colMeans(topic_df[, emotion_cols])
-
-  df_plot <- data.frame(
-    emotion = names(emotion_totals),
-    score = as.numeric(emotion_totals)
-  )
-
-  print(
-    ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
-      geom_bar(stat = "identity") +
-      theme_minimal() +
-      labs(title = topic_names[t])
-  )
+    print(
+      ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
+        geom_bar(stat = "identity") +
+        theme_minimal() +
+        labs(title = topic_names[i])
+    )
+  })
 }
+multiplot(plotlist = plot_lst, cols = 2, heights = 100)
 
 # Polarity bar plot
 sent_labels <- ifelse(sent_scores > 0, "Positive",
@@ -303,6 +302,7 @@ print(
 )
 
 # NRC emotions
+# NRC Emotion Lexicon, Syuzhet package which contains the built-in get_nrc_sentiment function
 nrc <- get_nrc_sentiment(cleaned_text)
 
 emotion_totals <- colSums(nrc)
@@ -322,5 +322,5 @@ print(
   ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
     geom_bar(stat = "identity") +
     theme_minimal() +
-    labs(title = paste("NRC Emotion Distribution"))
+    labs(title = paste("NRC Emotion Distribution")) + coord_flip()
 )
