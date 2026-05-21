@@ -30,7 +30,7 @@ library(ggplot2)
 library(Rmisc) # for multiplot
 
 # Load dataset
-data <- read.csv("path for Discord_original.xlsx", header = TRUE, stringsAsFactors = FALSE)
+data <- read.csv("path for Discord.csv", header = TRUE, stringsAsFactors = FALSE)
 
 # Keep only text column
 text <- data$content
