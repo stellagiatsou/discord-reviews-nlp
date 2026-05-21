@@ -125,14 +125,38 @@ inspect(dtm)
 # -------------
 
 # LDA - Gibbs sampling
-# Latent Dirichlet Allocation (LDA) is a generative statistical model commonly used in Natural Language Processing (NLP) for topic modeling
+# Latent Dirichlet Allocation (LDA) Unsupervised Machine Learning algorithm
+# Bag-of-Words: Αγνοεί τη γραμματική και εστιάζει αποκλειστικά στη συχνότητα εμφάνισης των λέξεων
+# Μείγμα θεμάτων: Κάθε έγγραφο δεν ασχολείται αποκλειστικά με ένα θέμα / Κάθε έγγραφο = μίγμα topics
+# Κατανομή λέξεων: Κάθε θέμα χαρακτηρίζεται από μια κατανομή πιθανοτήτων για το ποιες λέξεις το αντιπροσωπεύουν καλύτερα / Κάθε topic = κατανομή λέξεων
 set.seed(42)
+k <- 7
+coherence_scores <- numeric(k)
 
-k <- 6 # according to coherance score
+for (i in 2:k) {
+  lda_model <- LDA(dtm, k = i)
+  coherence_scores[i] <- mean(topic_coherence(lda_model, dtm))
+  }
+
+coherence_scores #  0.0000 -192.4748 -199.4506 -171.5357 -183.7750 -187.1922 -196.7714
+plot(
+  1:k,
+  coherence_scores,
+  type = "b",
+  pch = 19,
+  col = "blue",
+  xlab = "Number of Topics (k)",
+  ylab = "Coherence Score",
+  main = "Topic Coherence vs Number of Topics"
+)
+
+order_coherence_scores <- order(coherence_scores, decreasing = TRUE) # 1 4 5 6 2 7 3
+
+k <- 6 # Έπειτα από δοκιμές ερμηνεύω ότι με k 6 προκύπτουν "κρυμμένα" topics
 
 lda_model <- LDA(
   dtm,
-  k = k,
+  k = 2,
   method = "Gibbs",
   control = list(
     iter = 1000,
