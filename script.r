@@ -248,7 +248,8 @@ for ( i in 1:k){
 }
 multiplot(plotlist = plot_lst, cols = 2)
 
-# NRC sentiment per topic
+# NRC emotion distribution analysis per topic
+# NRC Emotion Lexicon, Syuzhet package which contains the built-in get_nrc_sentiment function
 nrc_sentiment <- get_nrc_sentiment(cleaned_text)
 
 nrc_sentiment <- nrc_sentiment[1:nrow(doc_topics), ]
@@ -283,7 +284,7 @@ for (i in 1:i) {
 }
 multiplot(plotlist = plot_lst, cols = 2)
 
-# Polarity bar plot
+# Polarity alaysis
 sent_labels <- ifelse(sent_scores > 0, "Positive",
                       ifelse(sent_scores < 0, "Negative", "Neutral"))
 
@@ -300,8 +301,7 @@ print(
     labs(title = "Sentiment Distribution")
 )
 
-# NRC emotions
-# NRC Emotion Lexicon, Syuzhet package which contains the built-in get_nrc_sentiment function
+# NRC emotion distribution analysis
 nrc <- get_nrc_sentiment(cleaned_text)
 
 emotion_totals <- colSums(nrc)
