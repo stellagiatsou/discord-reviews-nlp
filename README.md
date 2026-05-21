@@ -3,7 +3,18 @@ Built an end‑to‑end NLP pipeline in R to extract insights from Discord user 
 
 Ping me for the xlsx!
 
-Topics
+Top terms per topic
+
+     Topic 1    Topic 2     Topic 3      Topic 4      Topic 5    Topic 6    
+      "face"   "nitro"      "heart"     "update"     "friend"    "log"     
+      "quest"  "bad"        "red"       "fix"        "game"      "email"   
+      "orb"    "give"       "star"      "work"       "love"      "password"
+      "thumb"  "people"     "nice"      "bug"        "talk"      "try"     
+      "smile"  "datum"      "rate"      "issue"      "people"    "say"     
+      "please" "checkpoint" "cool"      "message"    "play"      "please" 
+
+
+Thus, the following topics
 
 1. Bugs/updates/system issues
 
@@ -16,16 +27,6 @@ Topics
 5. Login/security
 
 6. Sentiment reactions
-
-Top terms per topic
-
-     Topic 1    Topic 2     Topic 3      Topic 4      Topic 5    Topic 6    
-      "face"   "nitro"      "heart"     "update"     "friend"    "log"     
-      "quest"  "bad"        "red"       "fix"        "game"      "email"   
-      "orb"    "give"       "star"      "work"       "love"      "password"
-      "thumb"  "people"     "nice"      "bug"        "talk"      "try"     
-      "smile"  "datum"      "rate"      "issue"      "people"    "say"     
-      "please" "checkpoint" "cool"      "message"    "play"      "please" 
 
 
 Dominant Topic
