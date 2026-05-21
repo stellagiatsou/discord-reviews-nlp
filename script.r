@@ -125,7 +125,7 @@ inspect(dtm)
 # -------------
 
 # LDA - Gibbs sampling
-# Linear Discriminant Analysis (LDA) is a well-established machine learning technique and classification method for predicting categories
+# Latent Dirichlet Allocation (LDA) is a generative statistical model commonly used in Natural Language Processing (NLP) for topic modeling
 set.seed(42)
 
 k <- 6 # according to coherance score
