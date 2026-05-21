@@ -274,15 +274,14 @@ for (i in 1:i) {
       score = as.numeric(emotion_totals)
     )
 
-    print(
-      ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
-        geom_bar(stat = "identity") +
-        theme_minimal() +
-        labs(title = topic_names[i])
-    )
+
+    ggplot(df_plot, aes(x = emotion, y = score, fill = emotion)) +
+      geom_bar(stat = "identity") +
+      theme_minimal() +
+      labs(title = topic_names[i])
   })
 }
-multiplot(plotlist = plot_lst, cols = 2, heights = 100)
+multiplot(plotlist = plot_lst, cols = 2)
 
 # Polarity bar plot
 sent_labels <- ifelse(sent_scores > 0, "Positive",
